@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparar Seguidores</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -96,7 +97,8 @@
             #drop-area {
                 width: 60%;
             }
-            h2{
+
+            h2 {
                 width: 80%;
             }
 
@@ -111,9 +113,10 @@
 <body>
 
     <h2>Usuarios a los que sigues pero que no te siguen :"v</h2>
-    <div id="drop-area" onclick="document.getElementById('fileInput').click();">
-        Selecciona la carpeta <code>connections</code> <br> o simplemente arrastra y suelta el archivo aquí
-        <input type="file" id="fileInput" style="display:none;" webkitdirectory multiple />
+    <div id="drop-area">
+        Selecciona el archivo ZIP <code>instagram-example-2025-12-34-AsdfGhJkl.zip</code> <br> o simplemente arrastra y
+        suelta el archivo aquí
+        <input type="file" id="fileInput" style="display:none;" />
     </div>
     <h3>Resultado:</h3>
     <ul id="result"></ul>
@@ -124,143 +127,87 @@
         let followers = new Set();
         let following = new Set();
 
-        console.log("Script cargado correctamente");
-
         fileInput.addEventListener("change", async () => {
             const files = Array.from(fileInput.files);
             console.log("Archivos seleccionados:", files.map(f => f.name));
-            processFiles(files);
+            await processZip(files[0]);
         });
 
-        dropArea.addEventListener("dragover", () => {
-            dropArea.classList.add("highlight");
-            console.log("Archivo arrastrado sobre el área");
-        });
+    dropArea.addEventListener("dragover", (event) => {
+        event.preventDefault(); // Evita que el navegador intente abrir el archivo.
+        dropArea.classList.add("highlight");
+    });
 
-        dropArea.addEventListener("dragleave", () => {
-            dropArea.classList.remove("highlight");
-            console.log("Archivo salió del área de arrastre");
-        });
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("highlight");
+    });
 
-        dropArea.addEventListener("drop", async (event) => {
-            dropArea.classList.remove("highlight");
-            console.log("Carpeta soltada, procesando...");
+    dropArea.addEventListener("drop", async (event) => {
+        event.preventDefault(); // Prevenimos la acción predeterminada (abrir el archivo)
+        event.stopPropagation(); // Evita que el evento se propague hacia otros elementos.
+        dropArea.classList.remove("highlight");
 
-            let items = event.dataTransfer.items;
-            if (!items) {
-                console.error("No se encontraron items en el drop");
-                return;
-            }
-
-            let files = await getFilesFromFolder(items);
-            console.log("Archivos obtenidos:", files.map(f => f.name));
-            processFiles(files);
-        });
-
-        async function getFilesFromFolder(items) {
-            let files = [];
-            for (let item of items) {
-                let entry = item.webkitGetAsEntry();
-                if (entry && entry.isDirectory) {
-                    console.log("Es un directorio, leyendo...");
-                    files = await readDirectory(entry);
-                }
-            }
-            return files;
+        const files = Array.from(event.dataTransfer.files);
+        if (files.length > 0) {
+            await processZip(files[0]); // Procesamos el primer archivo
         }
+    });
 
-        function readDirectory(directoryEntry) {
-            return new Promise((resolve) => {
-                let dirReader = directoryEntry.createReader();
-                let allFiles = [];
 
-                function readEntries() {
-                    dirReader.readEntries(async (entries) => {
-                        if (entries.length === 0) {
-                            console.log("Lectura de directorio completada.");
-                            resolve(allFiles);
-                            return;
-                        }
+        dropArea.addEventListener("click", () => {
+            document.getElementById('fileInput').click();
+        });
 
-                        for (let entry of entries) {
-                            if (entry.isFile) {
-                                await new Promise(res => {
-                                    entry.file(file => {
-                                        console.log("Archivo encontrado:", file.name);
-                                        allFiles.push(file);
-                                        res();
-                                    });
-                                });
-                            } else if (entry.isDirectory && entry.name === "followers_and_following") {
-                                console.log("Entrando a subdirectorio:", entry.name);
-                                let subFiles = await readDirectory(entry);
-                                allFiles.push(...subFiles);
-                            }
-                        }
-                        readEntries();
-                    });
-                }
-                readEntries();
-            });
-        }
+        async function processZip(file) {
+            const zip = await JSZip.loadAsync(file);
+            const files = Object.keys(zip.files);
+            console.log("Archivos en el ZIP:", files);
 
-        function processFiles(files) {
             followers.clear();
             following.clear();
 
-            files.forEach(file => {
-                if (file.name === "followers_1.json") {
-                    console.log("Procesando followers_1.json");
-                    readFile(file, followers);
-                } else if (file.name === "following.json") {
-                    console.log("Procesando following.json");
-                    readFile(file, following);
-                } else {
-                    console.log("Archivo ignorado:", file.name);
+            for (let fileName of files) {
+                const fileData = zip.files[fileName];
+                if (fileName.includes("followers_1.json")) {
+                    const content = await fileData.async("text");
+                    readFile(content, followers);
+                } else if (fileName.includes("following.json")) {
+                    const content = await fileData.async("text");
+                    readFile(content, following);
                 }
-            });
+            }
+
+            checkComparison();
         }
 
-        function readFile(file, set) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    console.log("Leyendo archivo:", file.name);
-                    const data = JSON.parse(event.target.result);
-
-                    if (Array.isArray(data)) {
-                        console.log("Cargando followers...");
-                        data.forEach(entry => {
-                            if (entry.string_list_data && entry.string_list_data.length > 0) {
-                                const username = entry.string_list_data[0].value;
-                                set.add(`${username} - https://www.instagram.com/${username}`);
-                            }
-                        });
-                    } else if (data.relationships_following) {
-                        console.log("Cargando following...");
-                        data.relationships_following.forEach(entry => {
-                            if (entry.string_list_data && entry.string_list_data.length > 0) {
-                                const username = entry.string_list_data[0].value;
-                                set.add(`${username} - https://www.instagram.com/${username}`);
-                            }
-                        });
-                    } else {
-                        console.error(`Estructura inesperada en ${file.name}:`, data);
-                    }
-
-                    checkComparison();
-                } catch (error) {
-                    console.error(`Error al leer ${file.name}:`, error);
+        function readFile(content, set) {
+            try {
+                const data = JSON.parse(content);
+                if (Array.isArray(data)) {
+                    data.forEach(entry => {
+                        if (entry.string_list_data && entry.string_list_data.length > 0) {
+                            const username = entry.string_list_data[0].value;
+                            set.add(`${username} - https://www.instagram.com/${username}`);
+                        }
+                    });
+                } else if (data.relationships_following) {
+                    data.relationships_following.forEach(entry => {
+                        if (entry.string_list_data && entry.string_list_data.length > 0) {
+                            const username = entry.string_list_data[0].value;
+                            set.add(`${username} - https://www.instagram.com/${username}`);
+                        }
+                    });
+                } else {
+                    console.error("Estructura inesperada:", data);
                 }
-            };
-            reader.readAsText(file);
+            } catch (error) {
+                console.error("Error al leer el archivo:", error);
+            }
         }
 
         function checkComparison() {
             if (followers.size > 0 && following.size > 0) {
-                console.log("Comparando followers y following...");
                 let notFollowingBack = [...following].filter(user => !followers.has(user));
-                console.log("Usuarios que no te siguen:", notFollowingBack);
                 displayResults(notFollowingBack);
             }
         }
@@ -270,12 +217,10 @@
             resultElement.innerHTML = "";
             users.forEach(user => {
                 const li = document.createElement("li");
-
                 const a = document.createElement("a");
                 a.href = user.split(' - ')[1];
                 a.textContent = user.split(' - ')[0];
                 a.target = "_blank";
-
                 li.appendChild(a);
                 resultElement.appendChild(li);
             });
