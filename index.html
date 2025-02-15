@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="image.ico" type="image/x-icon">
+    <title>Comparar Seguidores</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #181818;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h2,
+        h3 {
+            font-size: 2rem;
+            background: linear-gradient(45deg, #f58529, #dd2a7b, #515bd4);
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-top: 20px;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        #drop-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            margin: 20px auto;
+            width: 60%;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #222;
+            color: #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        #drop-area.highlight {
+            border-color: #0095f6;
+            background-color: #2a2a2a;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 60%;
+            text-align: left;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        li {
+            font-size: 1rem;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        li a {
+            text-decoration: none;
+            color: #f5f5f5;
+            font-weight: bold;
+            display: block;
+            word-wrap: break-word;
+        }
+
+        li a:hover {
+            color: #cbcbcb;
+        }
+
+        code {
+            font-size: 1.1rem;
+            background-color: #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            #drop-area {
+                width: 80%;
+            }
+
+            ul {
+                width: 80%;
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Usuarios a los que sigues pero que no te siguen :"v</h2>
+<div id="drop-area" onclick="triggerFileInput()">
+    Selecciona la carpeta <code>connections</code> <br> o simplemente arrastra y suelta el archivo aquí
+</div>
+<input type="file" id="file-input" style="display: none;" multiple webkitdirectory mozdirectory>
+<h3>Resultado:</h3>
+<ul id="result"></ul>
+
+    <script>
+        const dropArea = document.getElementById("drop-area");
+        const fileInput = document.getElementById("fileInput");
+        let followers = new Set();
+        let following = new Set();
+
+        console.log("Script cargado correctamente");
+
+        fileInput.addEventListener("change", async () => {
+            const files = Array.from(fileInput.files);
+            console.log("Archivos seleccionados:", files.map(f => f.name));
+            processFiles(files);
+        });
+
+        dropArea.addEventListener("dragover", () => {
+            dropArea.classList.add("highlight");
+            console.log("Archivo arrastrado sobre el área");
+        });
+
+        dropArea.addEventListener("dragleave", () => {
+            dropArea.classList.remove("highlight");
+            console.log("Archivo salió del área de arrastre");
+        });
+
+        dropArea.addEventListener("drop", async (event) => {
+            dropArea.classList.remove("highlight");
+            console.log("Carpeta soltada, procesando...");
+
+            let items = event.dataTransfer.items;
+            if (!items) {
+                console.error("No se encontraron items en el drop");
+                return;
+            }
+
+            let files = await getFilesFromFolder(items);
+            console.log("Archivos obtenidos:", files.map(f => f.name));
+            processFiles(files);
+        });
+
+        async function getFilesFromFolder(items) {
+            let files = [];
+            for (let item of items) {
+                let entry = item.webkitGetAsEntry();
+                if (entry && entry.isDirectory) {
+                    console.log("Es un directorio, leyendo...");
+                    files = await readDirectory(entry);
+                }
+            }
+            return files;
+        }
+
+        function readDirectory(directoryEntry) {
+            return new Promise((resolve) => {
+                let dirReader = directoryEntry.createReader();
+                let allFiles = [];
+
+                function readEntries() {
+                    dirReader.readEntries(async (entries) => {
+                        if (entries.length === 0) {
+                            console.log("Lectura de directorio completada.");
+                            resolve(allFiles);
+                            return;
+                        }
+
+                        for (let entry of entries) {
+                            if (entry.isFile) {
+                                await new Promise(res => {
+                                    entry.file(file => {
+                                        console.log("Archivo encontrado:", file.name);
+                                        allFiles.push(file);
+                                        res();
+                                    });
+                                });
+                            } else if (entry.isDirectory && entry.name === "followers_and_following") {
+                                console.log("Entrando a subdirectorio:", entry.name);
+                                let subFiles = await readDirectory(entry);
+                                allFiles.push(...subFiles);
+                            }
+                        }
+                        readEntries();
+                    });
+                }
+                readEntries();
+            });
+        }
+
+        function processFiles(files) {
+            followers.clear();
+            following.clear();
+
+            files.forEach(file => {
+                if (file.name === "followers_1.json") {
+                    console.log("Procesando followers_1.json");
+                    readFile(file, followers);
+                } else if (file.name === "following.json") {
+                    console.log("Procesando following.json");
+                    readFile(file, following);
+                } else {
+                    console.log("Archivo ignorado:", file.name);
+                }
+            });
+        }
+
+        function readFile(file, set) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    console.log("Leyendo archivo:", file.name);
+                    const data = JSON.parse(event.target.result);
+
+                    if (Array.isArray(data)) {
+                        console.log("Cargando followers...");
+                        data.forEach(entry => {
+                            if (entry.string_list_data && entry.string_list_data.length > 0) {
+                                const username = entry.string_list_data[0].value;
+                                set.add(`${username} - https://www.instagram.com/${username}`);
+                            }
+                        });
+                    } else if (data.relationships_following) {
+                        console.log("Cargando following...");
+                        data.relationships_following.forEach(entry => {
+                            if (entry.string_list_data && entry.string_list_data.length > 0) {
+                                const username = entry.string_list_data[0].value;
+                                set.add(`${username} - https://www.instagram.com/${username}`);
+                            }
+                        });
+                    } else {
+                        console.error(`Estructura inesperada en ${file.name}:`, data);
+                    }
+
+                    checkComparison();
+                } catch (error) {
+                    console.error(`Error al leer ${file.name}:`, error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function checkComparison() {
+            if (followers.size > 0 && following.size > 0) {
+                console.log("Comparando followers y following...");
+                let notFollowingBack = [...following].filter(user => !followers.has(user));
+                console.log("Usuarios que no te siguen:", notFollowingBack);
+                displayResults(notFollowingBack);
+            }
+        }
+
+        function displayResults(users) {
+            const resultElement = document.getElementById("result");
+            resultElement.innerHTML = "";
+            users.forEach(user => {
+                const li = document.createElement("li");
+
+                const a = document.createElement("a");
+                a.href = user.split(' - ')[1];
+                a.textContent = user.split(' - ')[0];
+                a.target = "_blank";
+
+                li.appendChild(a);
+                resultElement.appendChild(li);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
