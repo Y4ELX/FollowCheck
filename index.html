@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="image.ico" type="image/x-icon">
     <title>Comparar Seguidores</title>
     <style>
         body {
@@ -30,6 +29,7 @@
         }
 
         h3 {
+            color: #ababab;
             font-size: 1.5rem;
         }
 
@@ -94,6 +94,9 @@
 
         @media (max-width: 768px) {
             #drop-area {
+                width: 60%;
+            }
+            h2{
                 width: 80%;
             }
 
@@ -107,13 +110,13 @@
 
 <body>
 
-<h2>Usuarios a los que sigues pero que no te siguen :"v</h2>
-<div id="drop-area" onclick="triggerFileInput()">
-    Selecciona la carpeta <code>connections</code> <br> o simplemente arrastra y suelta el archivo aquí
-</div>
-<input type="file" id="file-input" style="display: none;" multiple webkitdirectory mozdirectory>
-<h3>Resultado:</h3>
-<ul id="result"></ul>
+    <h2>Usuarios a los que sigues pero que no te siguen :"v</h2>
+    <div id="drop-area" onclick="document.getElementById('fileInput').click();">
+        Selecciona la carpeta <code>connections</code> <br> o simplemente arrastra y suelta el archivo aquí
+        <input type="file" id="fileInput" style="display:none;" webkitdirectory multiple />
+    </div>
+    <h3>Resultado:</h3>
+    <ul id="result"></ul>
 
     <script>
         const dropArea = document.getElementById("drop-area");
