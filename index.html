@@ -20,18 +20,27 @@
             min-height: 100vh;
         }
 
-        h2,
-        h3 {
-            font-size: 2rem;
-            background: linear-gradient(45deg, #f58529, #dd2a7b, #515bd4);
+        h1 {
+            font-size: 1.4rem;
+            color: #ababab;
+            margin: 0px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2{
+            font-size: 3rem;
+            background: linear-gradient(45deg, #f59d29, #dd2a7b, #515bd4);
             -webkit-background-clip: text;
             color: transparent;
+            margin: 0px;
             margin-top: 20px;
         }
 
         h3 {
             color: #ababab;
             font-size: 1.5rem;
+            text-align: center;
         }
 
         #drop-area {
@@ -43,6 +52,10 @@
             text-align: center;
             font-size: 1.1rem;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             background-color: #222;
             color: #e0e0e0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -50,7 +63,7 @@
         }
 
         #drop-area.highlight {
-            border-color: #0095f6;
+            border-color: #dfdfdf;
             background-color: #2a2a2a;
         }
 
@@ -60,7 +73,8 @@
             width: 60%;
             text-align: left;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            flex: wrap;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
             gap: 10px;
         }
 
@@ -93,18 +107,31 @@
             color: #e0e0e0;
         }
 
+        .button {
+            background-color: #0095f6;
+            color: #222222;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
         @media (max-width: 768px) {
             #drop-area {
                 width: 60%;
             }
 
-            h2 {
-                width: 80%;
+            h2, h3, h1 {
+                width: 60%;
             }
 
             ul {
-                width: 80%;
+                width: 60%;
                 grid-template-columns: 1fr;
+            }
+
+            li{
+                margin: 5px 0;
             }
         }
     </style>
@@ -112,13 +139,18 @@
 
 <body>
 
-    <h2>Usuarios a los que sigues pero que no te siguen :"v</h2>
+    <h2>FollowCheck</h2>
+    <h1>Descubre a quien sigues pero no te sigue</h1>
     <div id="drop-area">
-        Selecciona el archivo ZIP <code>instagram-example-2025-12-34-AsdfGhJkl.zip</code> <br> o simplemente arrastra y
-        suelta el archivo aquí
+        <label>Arrastra y suelta el archivo ZIP <code>instagram-example-2025-12-34-AsdfGhJkl.zip</code> aquí</label>
+        o
+        <br>
+        <label class="button">
+            Selecciona el archivo
+        </label>
         <input type="file" id="fileInput" style="display:none;" />
     </div>
-    <h3>Resultado:</h3>
+    <h3 id="h3R" style="display: none;">Resultado:</h3>
     <ul id="result"></ul>
 
     <script>
@@ -212,19 +244,26 @@
             }
         }
 
-        function displayResults(users) {
-            const resultElement = document.getElementById("result");
-            resultElement.innerHTML = "";
-            users.forEach(user => {
-                const li = document.createElement("li");
-                const a = document.createElement("a");
-                a.href = user.split(' - ')[1];
-                a.textContent = user.split(' - ')[0];
-                a.target = "_blank";
-                li.appendChild(a);
-                resultElement.appendChild(li);
-            });
-        }
+function displayResults(users) {
+    const resultElement = document.getElementById("result");
+    const h3R = document.getElementById("h3R");
+    h3R.style.display = "block";
+    resultElement.innerHTML = "";
+    users.forEach(user => {
+        const li = document.createElement("li");
+
+        // Crear el enlace con el nombre de usuario
+        const a = document.createElement("a");
+        a.href = user.split(' - ')[1];
+        a.textContent = user.split(' - ')[0];
+        a.target = "_blank";
+
+        // Añadir la imagen y el nombre al <li>
+        li.appendChild(a);
+        resultElement.appendChild(li);
+    });
+}
+
     </script>
 
 </body>
