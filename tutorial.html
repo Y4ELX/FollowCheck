@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo Obtener el Archivo ZIP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #181818;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Evitar desplazamiento horizontal */
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: #ababab;
+            margin: 0px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #f59d29, #dd2a7b, #515bd4);
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 0px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #ababab;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #e0e0e0;
+            text-align: center;
+            margin: 15px;
+        }
+
+        a {
+            color: #0095f6;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #cbcbcb;
+        }
+
+        .button {
+            background-color: #0095f6;
+            color: #222222;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            margin-bottom: 100px;
+        }
+
+        .button:hover {
+            background-color: #007bb5;
+        }
+
+        .slider-container {
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .step {
+            width: 100%;
+            flex-shrink: 0;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .step img {
+            width: auto;
+            /* Imagen toma el 100% del ancho del contenedor */
+            height: 400px;
+            /* Mantener proporciones */
+            margin-top: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            transform: translateY(-50%);
+        }
+
+        .nav-button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        @media (max-width: 768px) {
+
+            h2,
+            h3,
+            h1 {
+                width: 90%;
+            }
+
+            .slider-container {
+                width: 100%;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>FollowCheck</h2>
+    <h3>Para poder obtener el archivo .zip necesario para utilizar nuestra herramienta, sigue estos pasos:</h3>
+
+    <div class="slider-container">
+        <div class="slider" id="slider">
+            <div class="step">
+                <p>1. Ingresa a este <a href="https://accountscenter.instagram.com/info_and_permissions/dyi/"
+                        target="_blank">link</a> para descargar tus seguidores y seguidos.</p>
+                <img src="assets/imagen1.png" alt="Paso 1 - Link de descarga">
+            </div>
+
+            <div class="step">
+                <p>2. Da clic en <strong>Descargar Información</strong>.</p>
+                <img src="assets/imagen2.png" alt="Paso 2 - Descargar Información">
+            </div>
+
+            <div class="step">
+                <p>3. Selecciona tu usuario de Instagram y da clic en <strong>Siguiente</strong>.</p>
+                <img src="assets/imagen3.png" alt="Paso 3 - Seleccionar usuario">
+            </div>
+
+            <div class="step">
+                <p>4. Selecciona la opción <strong>"Parte de la Información"</strong>.</p>
+                <img src="assets/imagen4.png" alt="Paso 4 - Seleccionar opción">
+            </div>
+
+            <div class="step">
+                <p>5. Desplázate hasta la sección de <strong>"Conexiones"</strong> y selecciona <strong>"Seguidores y
+                        Seguidos"</strong>.</p>
+                <img src="assets/imagen5.png" alt="Paso 5 - Seleccionar Conexiones">
+            </div>
+
+            <div class="step">
+                <p>6. En la sección de qué quieres hacer con tu información, selecciona <strong>Descargar en
+                        dispositivo</strong>.</p>
+                <img src="assets/imagen6.png" alt="Paso 6 - Descargar en dispositivo">
+            </div>
+
+            <div class="step">
+                <p>7. En el intervalo de fecha selecciona <strong>Desde el principio</strong> y en
+                    <strong>Formato</strong> selecciona <strong>JSON</strong>.</p>
+                <img src="assets/imagen7.png" alt="Paso 7 - Seleccionar fecha y formato">
+            </div>
+
+            <div class="step">
+                <p>Una vez que hayas completado estos pasos, pasados unos minutos podrás descargar el archivo .zip
+                    accediendo nuevamente a este <a
+                        href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank">link</a>.
+                </p>
+                <img src="assets/imagen8.png" alt="Paso 8 - Descargar archivo">
+                <p>¡Ahora puedes continuar con el análisis en <a href="index.html">FollowCheck</a>!</p>
+
+                <a href="index.html" class="button">Volver al Inicio</a>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-button" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="nav-button" onclick="moveSlide(1)">&#10095;</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+
+        function moveSlide(direction) {
+            const slides = document.querySelectorAll('.step');
+            const slider = document.getElementById('slider');
+            currentSlide += direction;
+
+            if (currentSlide < 0) {
+                currentSlide = slides.length - 1;
+            } else if (currentSlide >= slides.length) {
+                currentSlide = 0;
+            }
+
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+    </script>
+</body>
+
+</html>

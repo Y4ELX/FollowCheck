@@ -154,7 +154,9 @@
         </label>
         <input type="file" id="fileInput" style="display:none;" />
     </div>
+    <p>No sabes como obtener el .zip? <a href="tutorial.html">Haz click aquí</a></p>
     <h3 id="h3R" style="display: none;">Resultado:</h3>
+    <div id="resultados"></div>
     <ul id="result"></ul>
 
     <script>
@@ -248,25 +250,32 @@
             }
         }
 
-function displayResults(users) {
-    const resultElement = document.getElementById("result");
-    const h3R = document.getElementById("h3R");
-    h3R.style.display = "block";
-    resultElement.innerHTML = "";
-    users.forEach(user => {
-        const li = document.createElement("li");
+        function displayResults(users) {
+            const resultElement = document.getElementById("result");
+            const h3R = document.getElementById("h3R");
+            const resultCount = document.getElementById("resultados");  // Referencia al div donde mostrar el número
 
-        // Crear el enlace con el nombre de usuario
-        const a = document.createElement("a");
-        a.href = user.split(' - ')[1];
-        a.textContent = user.split(' - ')[0];
-        a.target = "_blank";
+            h3R.style.display = "block";
+            resultElement.innerHTML = "";
 
-        // Añadir la imagen y el nombre al <li>
-        li.appendChild(a);
-        resultElement.appendChild(li);
-    });
-}
+            // Mostrar el número de seguidores no mutuos
+            resultCount.textContent = `Número de seguidores no mutuos: ${users.length}`;
+
+            users.forEach(user => {
+                const li = document.createElement("li");
+
+                // Crear el enlace con el nombre de usuario
+                const a = document.createElement("a");
+                a.href = user.split(' - ')[1];
+                a.textContent = user.split(' - ')[0];
+                a.target = "_blank";
+
+                // Añadir la imagen y el nombre al <li>
+                li.appendChild(a);
+                resultElement.appendChild(li);
+            });
+        }
+
 
     </script>
 
